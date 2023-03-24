@@ -1,106 +1,127 @@
 <script>
+import { 
+  format,
+  addMonths, 
+  addDays, 
+  subMonths, 
+  startOfMonth, 
+  endOfMonth, 
+  startOfWeek, 
+  endOfWeek, 
+} from 'date-fns';
+
 export default {
   data() {
     return {
-      days: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'],
-    };
+      choosenDate: new Date(),
+    }
+  },
+  computed: {
+    currentDay() {
+      return format(this.choosenDate, 'dd');
+    },
+
+    choosenMonth() {
+      return format(this.choosenDate, 'MMMM yyyy');
+    },
+    daysOfWeek() {
+      return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    },
+    days() {
+      const startOfMonthDate = startOfMonth(this.choosenDate);
+      const endOfMonthDate = endOfMonth(this.choosenDate);
+      const startOfWeekDate = startOfWeek(startOfMonthDate);
+      const endOfWeekDate = endOfWeek(endOfMonthDate);
+
+      const days = [];
+      let day = startOfWeekDate;
+
+      while (day <= endOfWeekDate) {
+        days.push(day);
+        day = addDays(day, 1);
+      }
+
+      return days;
+    }
   },
   methods: {
-    prevMonth() {},
-
-    nextMonth() {},
+    prevMonth() {
+      this.choosenDate = subMonths(this.choosenDate, 1);
+    },
+    nextMonth() {
+      this.choosenDate = addMonths(this.choosenDate, 1);
+    },
   }
-};
+}
 </script>
 
 <template>
-  <div class="page">
-      <table class="table table is-bordered table is-striped table is-hoverable">
-      <thead >
-        <tr class="is-selected">
-          <td colspan="7">
-            <div class="table-head">
-              <p class="month-row"><button class="button is-rounded button-left" @click="prevMonth"></button></p>
-            <p class="month-row">Березень 2023</p>
-            
-            <p class="month-row"><button class="button is-rounded button-right" @click="nextMonth"></button></p>
-            </div>
-          </td>
-        </tr>
+  <div class="calendar">
+    <div class="header">
+      <button class="button-left" @click="prevMonth"></button>
+      <span>{{ choosenMonth }}</span>
+      <button class="button-right" @click="nextMonth"></button>
+    </div>
 
-        <tr>
-          <th v-for="(name, index) in days" :key="index">{{ name }}</th>
-        </tr>
-      </thead>
+    <div class="weekdays">
+      <span v-for="day in daysOfWeek">{{ day }}</span>
+    </div>
 
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>2</td>
-          <td>3</td>
-          <td>4</td>
-          <td>5</td>
-          <td>6</td>
-          <td>7</td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>2</td>
-          <td>3</td>
-          <td>4</td>
-          <td>5</td>
-          <td>6</td>
-          <td>7</td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>2</td>
-          <td>3</td>
-          <td>4</td>
-          <td>5</td>
-          <td>6</td>
-          <td>7</td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>2</td>
-          <td>3</td>
-          <td>4</td>
-          <td>5</td>
-          <td>6</td>
-          <td>7</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="days">
+      <span
+        v-for="(day, index) in days"
+        :key="index"
+        @click="select(day)"
+      >
+        {{ day.getDate() }}
+      </span>
+    </div>
   </div>
 </template>
 
-
-
 <style>
-.page {
+.calendar {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  height: 100%;
+  width: 250px;
+  border: 1px solid black;
 }
 
-.table-head {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 8px;
 }
 
-.month-row {
-  display: inline-block;
-  padding-left: 10px;
-  padding-right: 10px;
+.weekdays {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 8px;
+}
+
+.today {
+  background-color:aquamarine;
+}
+
+.selected {
+  background-color: #008000;
+  color: #fff;
 }
 
 .button-left {
   background-image: url(./assets/images/arrow-left.svg);
+  width: 30px;
+  height: 30px;
+
+  border-radius: 50px;
 
   background-position: center;
   background-repeat: no-repeat;
@@ -108,6 +129,11 @@ export default {
 
 .button-right {
   background-image: url(./assets/images/arrow-right.svg);
+
+  width: 30px;
+  height: 30px;
+
+  border-radius: 50px;
 
   background-position: center;
   background-repeat: no-repeat;

@@ -17,8 +17,12 @@ export default {
       selectedDate: null,
       choosenDate: new Date(),
       currentDate: new Date(),
+      startOfWeek: 1,
     }
   },
+  // mounted() {
+  //   this.startOfWeek = startOfWeek(this.currentDate, { weekStartsOn: 1 });
+  // },
   computed: {
     currentDay() {
       return format(this.choosenDate, 'dd');
@@ -48,18 +52,14 @@ export default {
       return format(this.choosenDate, 'MMMM yyyy');
     },
 
-    choosenMonth() {
-      return format(this.choosenDate, 'MMMM yyyy');
-    },
-
     daysOfWeek() {
-      return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     },
 
     days() {
       const startOfMonthDate = startOfMonth(this.choosenDate);
       const endOfMonthDate = endOfMonth(this.choosenDate);
-      const startOfWeekDate = startOfWeek(startOfMonthDate);
+      const startOfWeekDate = startOfWeek(startOfMonthDate, { weekStartsOn: 1 });
       const endOfWeekDate = endOfWeek(endOfMonthDate);
 
       const days = [];
@@ -122,7 +122,8 @@ export default {
           <span class="has-text-weight-semibold" v-for="day in daysOfWeek">{{ day }}</span>
         </div>
 
-      <div class="days">
+      <div class="days-container">
+        <div class="days">
         <span
           v-for="(day, index) in days"
           :key="index"
@@ -132,6 +133,7 @@ export default {
         > 
           {{ day.getDate() }}
         </span>
+      </div>
       </div>
       </div>
     </div>
@@ -145,6 +147,10 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.days-container {
+height: 150px;
 }
 
 .day:hover {

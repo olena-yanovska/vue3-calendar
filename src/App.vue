@@ -11,18 +11,18 @@ import {
   isSameDay,
 } from 'date-fns';
 
+import { zonedTimeToUtc } from 'date-fns-tz';
+
 export default {
   data() {
     return {
       selectedDate: null,
       choosenDate: new Date(),
       currentDate: new Date(),
-      startOfWeek: 1,
+      currentTime: '',
+      timezone: 'Europe/London',
     }
   },
-  // mounted() {
-  //   this.startOfWeek = startOfWeek(this.currentDate, { weekStartsOn: 1 });
-  // },
   computed: {
     currentDay() {
       return format(this.choosenDate, 'dd');
@@ -73,7 +73,20 @@ export default {
       return days;
     }
   },
+  mounted() {
+    this.updateTime();
+
+    setInterval(this.updateTime, 1000);
+  },  
   methods: {
+    updateTime() {
+      const now = new Date();
+      const timeInKyiv = zonedTimeToUtc(now, 'Europe/Kyiv');
+      const timeInLondon = zonedTimeToUtc(timeInKyiv, 'Etc/GMT-4');
+      const formattedTime = format(timeInLondon, 'h:mm:ss a');
+      this.currentTime = formattedTime;
+    },
+
     prevMonth() {
       this.choosenDate = subMonths(this.choosenDate, 1);
     },
@@ -102,6 +115,12 @@ export default {
         {{ currentMonth }}
         {{ currentYear }}
       </p>
+
+      <p class="is-size-5">
+        Time: 
+        {{ currentTime }} 
+        {{ timezone }}
+      </p>
     </div>
 
     <div class="calendar">
@@ -119,7 +138,9 @@ export default {
 
       <div class="box">
         <div class="weekdays">
-          <span class="has-text-weight-semibold" v-for="day in daysOfWeek">{{ day }}</span>
+          <span class="has-text-weight-semibold" v-for="day in daysOfWeek">
+            {{ day }}
+          </span>
         </div>
 
       <div class="days-container">
@@ -128,7 +149,10 @@ export default {
           v-for="(day, index) in days"
           :key="index"
           class="day has-text-centered is-size-6 is-clickable"
-          :class="{ 'has-text-light has-background-success': isToday(day), ' has-background-grey-lighter': isSelected(day) }"
+          :class="{ 
+            'has-text-light has-background-success': isToday(day), 
+            'has-background-grey-lighter': isSelected(day) 
+          }"
           @click="select(day)"
         > 
           {{ day.getDate() }}

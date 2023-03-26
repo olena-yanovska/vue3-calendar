@@ -9,6 +9,7 @@ import {
   startOfWeek, 
   endOfWeek, 
   isSameDay,
+  parseISO,
 } from 'date-fns';
 
 import { zonedTimeToUtc } from 'date-fns-tz';
@@ -21,6 +22,15 @@ export default {
       currentDate: new Date(),
       currentTime: '',
       timezone: 'Europe/London',
+      events: [
+      {
+        title: 'My Event',
+        startDate: '2023-03-20T14:00:00.000+02:00',
+	      endDate: '2023-03-20T15:00:00.000+02:00',
+        start: '20th of March 12:00',
+        end: '13:00, (Europe/London)',
+      }
+    ]
     }
   },
   computed: {
@@ -56,11 +66,15 @@ export default {
       return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     },
 
+    currentDayOfWeek() {
+      return format(this.currentDate, 'EEEE');
+    },
+
     days() {
       const startOfMonthDate = startOfMonth(this.choosenDate);
       const endOfMonthDate = endOfMonth(this.choosenDate);
       const startOfWeekDate = startOfWeek(startOfMonthDate, { weekStartsOn: 1 });
-      const endOfWeekDate = endOfWeek(endOfMonthDate);
+      const endOfWeekDate = endOfWeek(endOfMonthDate, { weekStartsOn: 1 });
 
       const days = [];
       let day = startOfWeekDate;
@@ -79,6 +93,9 @@ export default {
     setInterval(this.updateTime, 1000);
   },  
   methods: {
+    startTime(time) {
+      return format(time, 'yyyy-MM-dd HH:mm');
+    },
     updateTime() {
       const now = new Date();
       const timeInKyiv = zonedTimeToUtc(now, 'Europe/Kyiv');
@@ -101,6 +118,21 @@ export default {
     },
     select(date) {
       this.selectedDate = date;
+    },
+
+    hasEvent(day) {
+      const formattedDay = format(day, 'yyyy-MM-dd');
+
+      let event = this.events.find(e => {
+        const formattedStartDay = format(parseISO(e.startDate), 'yyyy-MM-dd');
+        return formattedStartDay === formattedDay;
+      });
+
+      if (event) {
+      return event;
+      } else {
+      return false;
+      }
     }
   }
 }
@@ -109,14 +141,15 @@ export default {
 <template>
   <div class="page">
     <div class="content">
-      <p class="is-size-4">
+      <p class="is-size-4 has-text-centered">
         Today is 
+        {{ currentDayOfWeek }},
         {{ currentDayWithEnding }} of
         {{ currentMonth }}
         {{ currentYear }}
       </p>
 
-      <p class="is-size-5">
+      <p class="is-size-6 has-text-centered">
         Time: 
         {{ currentTime }} 
         {{ timezone }}
@@ -137,27 +170,38 @@ export default {
       </div>
 
       <div class="box">
-        <div class="weekdays">
-          <span class="has-text-weight-semibold" v-for="day in daysOfWeek">
+        <div class="days">
+          <span class="has-text-weight-semibold has-text-centered" v-for="day in daysOfWeek">
             {{ day }}
           </span>
         </div>
 
-      <div class="days-container">
-        <div class="days">
-        <span
-          v-for="(day, index) in days"
-          :key="index"
-          class="day has-text-centered is-size-6 is-clickable"
-          :class="{ 
-            'has-text-light has-background-success': isToday(day), 
-            'has-background-grey-lighter': isSelected(day) 
-          }"
-          @click="select(day)"
-        > 
-          {{ day.getDate() }}
-        </span>
-      </div>
+        <div class="days-container">
+          <div class="days">
+            <span
+              v-for="(day, index) in days"
+              :key="day"
+              class="day has-text-centered is-size-6 is-clickable"
+              :class="{ 
+                'has-text-light has-background-success': isToday(day), 
+                'has-background-grey-lighter': isSelected(day),
+                'has-text-dark has-background-warning': this.hasEvent(day),
+              }"
+
+              @click="select(day)"
+            > 
+            <div>
+              {{ day.getDate() }}
+              <div v-if="this.hasEvent(day)" class="event">
+                <p>{{ this.hasEvent(day).title }}</p>
+                <p>
+                  {{ (this.hasEvent(day).start) }} - {{ this.hasEvent(day).end }}
+                </p>
+              </div>
+            </div>
+
+          </span>
+        </div>
       </div>
       </div>
     </div>
@@ -165,6 +209,14 @@ export default {
 </template>
 
 <style>
+.event {
+  position: absolute;
+  bottom: -120px;
+  left: 0;
+  width: 350px;
+  min-height: 100px;
+}
+
 .page {
   display: flex;
   flex-direction: column;
@@ -183,6 +235,7 @@ height: 150px;
 
 .calendar {
   display: flex;
+  position: relative;
   flex-direction: column;
   width: 350px;
 }
@@ -197,12 +250,6 @@ height: 150px;
 
 .month {
   display: inline-block;
-}
-
-.weekdays {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px;
 }
 
 .days {

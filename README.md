@@ -1,14 +1,21 @@
-# vue3-calendar
+# Event Calendar
 
-This template should help get you started developing with Vue 3 in Vite.
+This is a simple calendar that displays planned events for the current month. The current day is highlighted in green, and days with planned events are highlighted in yellow. Time is shown by the London/Europe time zone.
 
-## Recommended IDE Setup
+## Technologies
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+The following technologies were used in this project:
 
-## Customize configuration
+- Vue.js
+- date-fns for flexible date and time manipulation
+- Bulma styles
+- JavaScript
+- HTML/CSS
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+## Customization
+
+You can modify the styling by editing Bulma styles in the `class="..."` attributes and betweeen `<style> </style>` tags in the `App.vue` file, or by overriding the styles with your own CSS.
+
 
 ## Project Setup
 

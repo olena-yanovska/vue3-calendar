@@ -12,7 +12,7 @@ import {
   parseISO,
 } from 'date-fns';
 
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 
 export default {
   data() {
@@ -23,14 +23,12 @@ export default {
       currentTime: '',
       timezone: 'Europe/London',
       events: [
-      {
-        title: 'My Event',
-        startDate: '2023-03-20T14:00:00.000+02:00',
-	      endDate: '2023-03-20T15:00:00.000+02:00',
-        start: '20th of March 12:00',
-        end: '13:00, (Europe/London)',
-      }
-    ]
+        {
+          title: 'Family dinner at the restaurant',
+          startDate: '2023-03-26T14:00:00.000+03:00',
+          endDate: '2023-03-26T15:00:00.000+03:00',
+        }
+      ]
     }
   },
   computed: {
@@ -93,13 +91,24 @@ export default {
     setInterval(this.updateTime, 1000);
   },  
   methods: {
-    startTime(time) {
-      return format(time, 'yyyy-MM-dd HH:mm');
+    formatDateStart(dateString) {
+      const date = new Date(dateString);
+      const timeInKyiv = zonedTimeToUtc(date, 'Europe/Kyiv');
+      const londonTimezone = 'Europe/London';
+      const timeInLondon = utcToZonedTime(timeInKyiv, londonTimezone);
+      return format(timeInLondon, 'dd.MM.yyyy HH:mm');
+    },
+    formatDateEnd(dateString) {
+      const date = new Date(dateString);
+      const londonTimezone = 'Europe/London';
+      const londonTime = utcToZonedTime(date, londonTimezone);
+      return format(londonTime, 'HH:mm');
     },
     updateTime() {
       const now = new Date();
       const timeInKyiv = zonedTimeToUtc(now, 'Europe/Kyiv');
-      const timeInLondon = zonedTimeToUtc(timeInKyiv, 'Etc/GMT-4');
+      const londonTimezone = 'Europe/London';
+      const timeInLondon = utcToZonedTime(timeInKyiv, londonTimezone);
       const formattedTime = format(timeInLondon, 'h:mm:ss a');
       this.currentTime = formattedTime;
     },
@@ -162,7 +171,7 @@ export default {
           <button class="button is-rounded button-left" @click="prevMonth">
         </button>
 
-        <div class="month is-size-4">{{ choosenMonth }}</div>
+        <span class="is-size-4">{{ choosenMonth }}</span>
 
         <button class="button is-rounded button-right" @click="nextMonth">
         </button>
@@ -192,10 +201,16 @@ export default {
             > 
             <div>
               {{ day.getDate() }}
-              <div v-if="this.hasEvent(day)" class="event">
-                <p>{{ this.hasEvent(day).title }}</p>
-                <p>
-                  {{ (this.hasEvent(day).start) }} - {{ this.hasEvent(day).end }}
+              <div v-if="this.hasEvent(day)" class="event box has-text-left">
+                <p class="has-text-info  is-size-5 has-text-weight-medium">
+                  Events:
+                </p>
+                <p class="has-text-weight-medium is-size-6">{{ this.hasEvent(day).title }}</p>
+                <p class="is-size-7">
+                  {{ formatDateStart(this.hasEvent(day).startDate) }}
+                   - 
+                   {{ formatDateEnd(this.hasEvent(day).endDate) }}
+                   (Europe/London)
                 </p>
               </div>
             </div>
@@ -211,7 +226,7 @@ export default {
 <style>
 .event {
   position: absolute;
-  bottom: -120px;
+  bottom: -140px;
   left: 0;
   width: 350px;
   min-height: 100px;
@@ -220,7 +235,6 @@ export default {
 .page {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   height: 100%;
 }
@@ -246,10 +260,6 @@ height: 150px;
 
   justify-content: space-between;
   align-items: center;
-}
-
-.month {
-  display: inline-block;
 }
 
 .days {

@@ -9,6 +9,7 @@ import {
   startOfWeek, 
   endOfWeek, 
   isSameDay,
+  isSameMonth,
   parseISO,
 } from 'date-fns';
 
@@ -35,7 +36,6 @@ export default {
     currentDay() {
       return format(this.choosenDate, 'dd');
     },
-
     currentDayWithEnding() {
       const day = this.currentDay;
 
@@ -51,23 +51,18 @@ export default {
       }
       return day + 'th'
     },
-
     currentMonth() {
       return format(this.currentDate, 'MMMM yyyy');
     },
-
     choosenMonth() {
       return format(this.choosenDate, 'MMMM yyyy');
     },
-
     daysOfWeek() {
       return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     },
-
     currentDayOfWeek() {
       return format(this.currentDate, 'EEEE');
     },
-
     days() {
       const startOfMonthDate = startOfMonth(this.choosenDate);
       const endOfMonthDate = endOfMonth(this.choosenDate);
@@ -91,6 +86,9 @@ export default {
     setInterval(this.updateTime, 1000);
   },  
   methods: {
+    isCurrentMonth(date) {
+      return isSameMonth(date, new Date());
+    },
     formatDateStart(dateString) {
       const date = new Date(dateString);
       const timeInKyiv = zonedTimeToUtc(date, 'Europe/Kyiv');
@@ -112,7 +110,6 @@ export default {
       const formattedTime = format(timeInLondon, 'h:mm:ss a');
       this.currentTime = formattedTime;
     },
-
     prevMonth() {
       this.choosenDate = subMonths(this.choosenDate, 1);
     },
@@ -128,7 +125,6 @@ export default {
     select(date) {
       this.selectedDate = date;
     },
-
     hasEvent(day) {
       const formattedDay = format(day, 'yyyy-MM-dd');
 
@@ -192,6 +188,7 @@ export default {
               :key="day"
               class="day has-text-centered is-size-6 is-clickable"
               :class="{ 
+                'has-text-grey-light': !isCurrentMonth(day),
                 'has-text-light has-background-success': isToday(day), 
                 'has-background-grey-lighter': isSelected(day),
                 'has-text-dark has-background-warning': this.hasEvent(day),
@@ -224,6 +221,11 @@ export default {
 </template>
 
 <style>
+.inactive {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
 .event {
   position: absolute;
   bottom: -140px;

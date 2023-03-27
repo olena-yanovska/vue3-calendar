@@ -36,8 +36,5 @@ npm run dev
 ### Compile and Minify for Production
 
 ```sh
-chmod +x ./deploy.sh
-```
-```sh
-./deploy.sh
+npm run deploy
 ```

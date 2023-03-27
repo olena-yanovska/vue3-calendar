@@ -206,7 +206,7 @@ export default {
                   {{ formatDateStart(this.hasEvent(day).startDate) }}
                    - 
                    {{ formatDateEnd(this.hasEvent(day).endDate) }}
-                   ( {{ timezone }} )
+                   ({{ timezone }})
                 </p>
               </div>
             </div>

@@ -91,22 +91,17 @@ export default {
     },
     formatDateStart(dateString) {
       const date = new Date(dateString);
-      const timeInKyiv = zonedTimeToUtc(date, 'Europe/Kyiv');
-      const londonTimezone = 'Europe/London';
-      const timeInLondon = utcToZonedTime(timeInKyiv, londonTimezone);
-      return format(timeInLondon, 'dd.MM.yyyy HH:mm');
+      const londonTime = utcToZonedTime(date, this.timezone);
+      return format(londonTime, 'dd.MM.yyyy HH:mm');
     },
     formatDateEnd(dateString) {
       const date = new Date(dateString);
-      const londonTimezone = 'Europe/London';
-      const londonTime = utcToZonedTime(date, londonTimezone);
+      const londonTime = utcToZonedTime(date, this.timezone);
       return format(londonTime, 'HH:mm');
     },
     updateTime() {
       const now = new Date();
-      const timeInKyiv = zonedTimeToUtc(now, 'Europe/Kyiv');
-      const londonTimezone = 'Europe/London';
-      const timeInLondon = utcToZonedTime(timeInKyiv, londonTimezone);
+      const timeInLondon = utcToZonedTime(now, this.timezone);
       const formattedTime = format(timeInLondon, 'h:mm:ss a');
       this.currentTime = formattedTime;
     },

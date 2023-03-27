@@ -13,16 +13,16 @@ import {
   parseISO,
 } from 'date-fns';
 
-import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { utcToZonedTime, formatInTimeZone } from 'date-fns-tz';
 
 export default {
   data() {
     return {
       selectedDate: null,
-      choosenDate: new Date(),
-      currentDate: new Date(),
+      choosenDate: this.getUTCDate(),
+      currentDate: this.getUTCDate(),
       currentTime: '',
-      timezone: 'Europe/London',
+      timeZone: 'Europe/London',
       events: [
         {
           title: 'Family dinner at the restaurant',
@@ -34,7 +34,7 @@ export default {
   },
   computed: {
     currentDay() {
-      return format(this.choosenDate, 'dd');
+      return formatInTimeZone(this.choosenDate, this.timeZone, 'dd');
     },
     currentDayWithEnding() {
       const day = this.currentDay;
@@ -52,20 +52,22 @@ export default {
       return day + 'th'
     },
     currentMonth() {
-      return format(this.currentDate, 'MMMM yyyy');
+      return formatInTimeZone(this.currentDate, this.timeZone, 'MMMM yyyy');
     },
     choosenMonth() {
-      return format(this.choosenDate, 'MMMM yyyy');
+      return formatInTimeZone(this.choosenDate, this.timeZone, 'MMMM yyyy');
     },
     daysOfWeek() {
       return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     },
     currentDayOfWeek() {
-      return format(this.currentDate, 'EEEE');
+      return formatInTimeZone(this.currentDate, this.timeZone, 'EEEE');
+
+      
     },
     days() {
-      const startOfMonthDate = startOfMonth(this.choosenDate);
-      const endOfMonthDate = endOfMonth(this.choosenDate);
+      const startOfMonthDate = startOfMonth(this.currentDate);
+      const endOfMonthDate = endOfMonth(this.currentDate);
       const startOfWeekDate = startOfWeek(startOfMonthDate, { weekStartsOn: 1 });
       const endOfWeekDate = endOfWeek(endOfMonthDate, { weekStartsOn: 1 });
 
@@ -86,23 +88,36 @@ export default {
     setInterval(this.updateTime, 1000);
   },  
   methods: {
+    getUTCDate() {
+      const date = new Date();
+      const utcDate = Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        date.getUTCHours(),
+        date.getUTCMinutes(),
+        date.getUTCSeconds(),
+        date.getUTCMilliseconds(),
+      );
+      return new Date(utcDate);
+    },
     isCurrentMonth(date) {
       return isSameMonth(date, new Date());
     },
     formatDateStart(dateString) {
       const date = new Date(dateString);
-      const londonTime = utcToZonedTime(date, this.timezone);
+      const londonTime = utcToZonedTime(date, this.timeZone);
       return format(londonTime, 'dd.MM.yyyy HH:mm');
     },
     formatDateEnd(dateString) {
       const date = new Date(dateString);
-      const londonTime = utcToZonedTime(date, this.timezone);
+      const londonTime = utcToZonedTime(date, this.timeZone);
       return format(londonTime, 'HH:mm');
     },
     updateTime() {
       const now = new Date();
-      const timeInLondon = utcToZonedTime(now, this.timezone);
-      const formattedTime = format(timeInLondon, 'h:mm:ss a');
+      this.currentDate = utcToZonedTime(now, this.timeZone);
+      const formattedTime = formatInTimeZone(now, this.timeZone, 'h:mm:ss a');
       this.currentTime = formattedTime;
     },
     prevMonth() {
@@ -151,7 +166,7 @@ export default {
       <p class="is-size-6 has-text-centered">
         Time: 
         {{ currentTime }} 
-        {{ timezone }}
+        {{ this.timeZone }}
       </p>
     </div>
 
@@ -201,7 +216,7 @@ export default {
                   {{ formatDateStart(this.hasEvent(day).startDate) }}
                    - 
                    {{ formatDateEnd(this.hasEvent(day).endDate) }}
-                   ({{ timezone }})
+                   ({{ this.timeZone }})
                 </p>
               </div>
             </div>

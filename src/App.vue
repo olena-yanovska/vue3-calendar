@@ -34,7 +34,8 @@ export default {
   },
   computed: {
     currentDay() {
-      return formatInTimeZone(this.choosenDate, this.timeZone, 'dd');
+      const date = this.getUTCDate();
+      return format(date, 'dd', { timeZone: this.timeZone })
     },
     currentDayWithEnding() {
       const day = this.currentDay;
@@ -52,21 +53,26 @@ export default {
       return day + 'th'
     },
     currentMonth() {
-      return formatInTimeZone(this.currentDate, this.timeZone, 'MMMM yyyy');
+      const date = this.currentDate;
+
+      return formatInTimeZone(date, this.timeZone, 'MMMM yyyy');
     },
     choosenMonth() {
-      return formatInTimeZone(this.choosenDate, this.timeZone, 'MMMM yyyy');
+      const month = this.choosenDate;
+
+      return formatInTimeZone(month, this.timeZone, 'MMMM yyyy');
     },
     daysOfWeek() {
       return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     },
     currentDayOfWeek() {
-      return formatInTimeZone(this.currentDate, this.timeZone, 'EEEE');
+      const week = this.currentDate;
 
-      
+      return formatInTimeZone(week, this.timeZone, 'EEEE');
     },
     days() {
-      const dateLondon = utcToZonedTime(this.choosenDate, this.timeZone);
+      const date = this.choosenDate;
+      const dateLondon = utcToZonedTime(date, this.timeZone);
 
       const startOfMonthDate = startOfMonth(dateLondon);
       const endOfMonthDate = endOfMonth(dateLondon);
@@ -85,16 +91,10 @@ export default {
     }
   },
   mounted() {
-    this.updateTime();
-    this.updateTimeZone();
-
+    this.updateTime;
     setInterval(this.updateTime, 1000);
   },  
   methods: {
-    updateTimeZone() {
-      const oldDate = this.choosenDate;
-      this.choosenDate = zonedTimeToUtc(oldDate, this.timeZone);
-    },
     getUTCDate() {
       const date = new Date();
       const utcDate = Date.UTC(
@@ -123,7 +123,6 @@ export default {
     },
     updateTime() {
       const now = new Date();
-      this.currentDate = utcToZonedTime(now, this.timeZone);
       const formattedTime = formatInTimeZone(now, this.timeZone, 'h:mm:ss a');
       this.currentTime = formattedTime;
     },
@@ -134,7 +133,10 @@ export default {
       this.choosenDate = addMonths(this.choosenDate, 1);
     },
     isToday(date) {
-      return isSameDay(date, new Date());
+      const newDate = this.getUTCDate();
+      const londonDate = utcToZonedTime(newDate, this.timeZone);
+
+      return isSameDay(date, londonDate);
     },
     isSelected(date) {
       return this.selectedDate && isSameDay(date, this.selectedDate);
@@ -167,7 +169,7 @@ export default {
         Today is 
         {{ currentDayOfWeek }},
         {{ currentDayWithEnding }} of
-        {{ currentMonth }}
+        {{ currentMonth }} <br>
       </p>
 
       <p class="is-size-6 has-text-centered">

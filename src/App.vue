@@ -66,8 +66,10 @@ export default {
       
     },
     days() {
-      const startOfMonthDate = startOfMonth(this.currentDate);
-      const endOfMonthDate = endOfMonth(this.currentDate);
+      const dateLondon = utcToZonedTime(this.choosenDate, this.timeZone);
+
+      const startOfMonthDate = startOfMonth(dateLondon);
+      const endOfMonthDate = endOfMonth(dateLondon);
       const startOfWeekDate = startOfWeek(startOfMonthDate, { weekStartsOn: 1 });
       const endOfWeekDate = endOfWeek(endOfMonthDate, { weekStartsOn: 1 });
 
@@ -84,10 +86,15 @@ export default {
   },
   mounted() {
     this.updateTime();
+    this.updateTimeZone();
 
     setInterval(this.updateTime, 1000);
   },  
   methods: {
+    updateTimeZone() {
+      const oldDate = this.choosenDate;
+      this.choosenDate = zonedTimeToUtc(oldDate, this.timeZone);
+    },
     getUTCDate() {
       const date = new Date();
       const utcDate = Date.UTC(
@@ -149,7 +156,7 @@ export default {
       return false;
       }
     }
-  }
+  },
 }
 </script>
 

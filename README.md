@@ -1,6 +1,10 @@
 # Event Calendar
 
+[DEMO Link](https://olena-yanovska.github.io/vue3-calendar/)
+
 This is a simple calendar that displays planned events for the current month. The current day is highlighted in green, and days with planned events are highlighted in yellow. Time is shown by the London/Europe time zone.
+
+<img src="https://user-images.githubusercontent.com/116846571/227862396-91451ea4-eadd-4502-b3cd-5e860f5a97c3.PNG" width="600">
 
 ## Technologies
 

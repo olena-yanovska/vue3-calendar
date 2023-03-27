@@ -26,6 +26,6 @@ git commit -m 'deploy'
 # if you are deploying to https://<USERNAME>.github.io/<REPO>
 # git push -f git@github.com:<USERNAME>/<REPO>.git main:gh-pages
 # git push -f git@github.com:olena-yanovska/vue3-calendar.git main:gh-pages
-/vue3-calendar.git main:gh-pages
+/vue3-calendar.git master:gh-pages
 
 cd -

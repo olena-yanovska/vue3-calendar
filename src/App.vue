@@ -151,7 +151,6 @@ export default {
         {{ currentDayOfWeek }},
         {{ currentDayWithEnding }} of
         {{ currentMonth }}
-        {{ currentYear }}
       </p>
 
       <p class="is-size-6 has-text-centered">
@@ -207,11 +206,10 @@ export default {
                   {{ formatDateStart(this.hasEvent(day).startDate) }}
                    - 
                    {{ formatDateEnd(this.hasEvent(day).endDate) }}
-                   (Europe/London)
+                   ( {{ timezone }} )
                 </p>
               </div>
             </div>
-
           </span>
         </div>
       </div>
@@ -221,11 +219,6 @@ export default {
 </template>
 
 <style>
-.inactive {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
 .event {
   position: absolute;
   bottom: -140px;
